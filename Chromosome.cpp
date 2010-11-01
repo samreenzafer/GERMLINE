@@ -1,62 +1,63 @@
-// Chromosome.cpp.haplotyped markers for a chromosome
+// Chromosome.h.haplotyped markers for a chromosome
 
-#include "Chromosome.h"
-#include <iostream>
+#ifndef CHROMOSOME_H
+#define CHROMOSOME_H
+
+
+#include "BasicDefinitions.h"
+#include "MarkerSet.h"
+#include <vector>
 using namespace std;
 
-
-// Chromosome(): default constructor
-Chromosome::Chromosome()
-{}
-
-MarkerSet * Chromosome::getMarkerSet()
+class Chromosome
 {
-	return chromosome[position_ms];
-}
+public:
 
-MarkerSet * Chromosome::getMarkerSet(unsigned int pos)
-{
-	return chromosome[pos];
-}
+	// Chromosome(): default constructor
+	// Precondition: None.
+	// Postcondition: chromosome is empty. maxSets is 0.
+	Chromosome();
+	
+	// getMarkerSet(): accessor for MarkerSet objects.
+	// Precondition: None.
+	// Postcondition: If index refers to an index for which memory has been
+	//   allocated, then the MarkerSet at position index has been returned;
+	//   otherwise a warning is printed and the default MarkerSet is returned.
+	MarkerSet* getMarkerSet();
+	MarkerSet* getMarkerSet(unsigned int);
 
-void Chromosome::clear()
-{
-	for ( size_t i = 0 ; i < chromosome.size() ; i++ ) { delete chromosome[i]; }
-	chromosome.clear();
-}
+	// addMarkerSet(): adds a MarkerSet
+	// Precondition: None.
+	// Postcondition: If chromosome does not yet have maxSets MarkerSet objects, 
+	//  then ms is added to the end of chromosome; otherwise a warning is printed.
+	void addMarkerSet(MarkerSet * ms);
+	// addMarkers() : loads the entire marker data into a buffer chromosome
+	void addMarkers(list<bool>* markers);
 
-// addMarkerSet(): adds a MarkerSet
-void Chromosome::addMarkerSet(MarkerSet * ms)
-{
-	chromosome.push_back(ms);
-}
+	void clear();
+	//void initialize();
 
-void Chromosome::print_snps(ostream& out, unsigned int start, unsigned int end)
-{
-	unsigned int p_ms = position_ms;
+	void print(ostream& out,unsigned int,unsigned int);
+	void print_snps(ostream& out, unsigned int, unsigned int);
 
-	unsigned int ms_start = start / MARKER_SET_SIZE;
-	unsigned int ms_end = end / MARKER_SET_SIZE;
-	if( start % MARKER_SET_SIZE != 0 ) { position_ms = ms_start; chromosome[ms_start++]->print(out,start % MARKER_SET_SIZE,MARKER_SET_SIZE); out << ' '; }
-	print(out,ms_start,ms_end);
-	if( end % MARKER_SET_SIZE != 0 ) { out << ' '; chromosome[ms_end]->print(out,0,end % MARKER_SET_SIZE); }
 
-	position_ms = p_ms;
-}
+	///////////////////////////////////////////////
+	void updateMarkerSet(unsigned int start, unsigned int end);
 
-void Chromosome::print(ostream& out,unsigned int start,unsigned int end)
-{
-	for(position_ms=start;position_ms<end;position_ms++) 
-	{
-		if( position_ms > start ) out << ' ';
-		chromosome[position_ms]->print(out);
-	}
-}
+private:
 
-ostream& operator<<(ostream &fout, Chromosome& c)
-{
-	fout << c.getMarkerSet();
-	return fout;
-}
+	// Storage for chromosome MarkerSet objects
+	vector<MarkerSet * > chromosome;
 
-// end Chromosome.cpp
+	//List of marker bits
+	list<bool> buffer_chromosome;
+
+	///////////////////////////////////
+	//vector<MarkerSet * > init_chromosome;
+};
+
+ostream &operator<<(ostream &fout, Chromosome&);
+
+#endif
+
+// end Chromosome.h
